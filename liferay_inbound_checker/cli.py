@@ -4,14 +4,17 @@
 
 """Console script for liferay_inbound_checker."""
 import sys
+
 import click
 
 
 @click.command()
 def main(args=None):
     """Console script for liferay_inbound_checker."""
-    click.echo("Replace this message by putting your code into "
-               "liferay_inbound_checker.cli.main")
+    click.echo(
+        "Replace this message by putting your code into "
+        "liferay_inbound_checker.cli.main"
+    )
     click.echo("See click documentation at https://click.palletsprojects.com/")
     return 0
 

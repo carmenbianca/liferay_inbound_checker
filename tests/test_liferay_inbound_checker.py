@@ -7,11 +7,9 @@
 """Tests for `liferay_inbound_checker` package."""
 
 import pytest
-
 from click.testing import CliRunner
 
-from liferay_inbound_checker import liferay_inbound_checker
-from liferay_inbound_checker import cli
+from liferay_inbound_checker import cli, liferay_inbound_checker
 
 
 @pytest.fixture
@@ -35,7 +33,7 @@ def test_command_line_interface():
     runner = CliRunner()
     result = runner.invoke(cli.main)
     assert result.exit_code == 0
-    assert 'liferay_inbound_checker.cli.main' in result.output
-    help_result = runner.invoke(cli.main, ['--help'])
+    assert "liferay_inbound_checker.cli.main" in result.output
+    help_result = runner.invoke(cli.main, ["--help"])
     assert help_result.exit_code == 0
-    assert '--help  Show this message and exit.' in help_result.output
+    assert "--help  Show this message and exit." in help_result.output
