@@ -7,7 +7,7 @@
 import subprocess
 from os import PathLike
 from pathlib import Path
-from typing import NamedTuple
+from typing import NamedTuple, List
 
 from . import cwd
 
@@ -37,3 +37,7 @@ def generate_pom(portal_directory: PathLike) -> str:
         Path(portal_directory)
         / "modules/build/release.portal.bom.third.party-unspecified.pom"
     ).read_text()
+
+
+def extract_from_pom(pom: str) -> List[Dependency]:
+    return []
