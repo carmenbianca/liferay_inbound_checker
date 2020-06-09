@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: © 2020 Liferay, Inc. <https://liferay.com>
+#
+# SPDX-License-Identifier: LGPL-2.1-or-later
+
 .PHONY: clean clean-test clean-pyc clean-build docs help
 .DEFAULT_GOAL := help
 

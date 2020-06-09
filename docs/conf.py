@@ -1,4 +1,9 @@
 #!/usr/bin/env python
+
+# SPDX-FileCopyrightText: © 2020 Liferay, Inc. <https://liferay.com>
+#
+# SPDX-License-Identifier: LGPL-2.1-or-later
+
 #
 # liferay_inbound_checker documentation build configuration file, created by
 # sphinx-quickstart on Fri Jun  9 13:47:02 2017.
