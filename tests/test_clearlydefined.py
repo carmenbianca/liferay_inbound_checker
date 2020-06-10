@@ -9,6 +9,7 @@ import pytest
 from requests import RequestException
 
 from liferay_inbound_checker.clearlydefined import (
+    ClearlyDefinedResult,
     definitions_from_clearlydefined,
 )
 from liferay_inbound_checker.dependencies import Dependency
@@ -45,3 +46,13 @@ def test_definitions_bad_status_code(mocker):
 
     with pytest.raises(RequestException):
         definitions_from_clearlydefined(Dependency("a", "b", "c"))
+
+
+def test_score(clearlydefined_result):
+    assert clearlydefined_result.score == 80
+
+
+def test_score_different(clearlydefined_dict):
+    clearlydefined_dict["scores"]["effective"] = 5
+    result = ClearlyDefinedResult(clearlydefined_dict)
+    assert result.score == 5

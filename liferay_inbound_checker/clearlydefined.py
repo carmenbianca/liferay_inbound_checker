@@ -24,3 +24,12 @@ def definitions_from_clearlydefined(dependency: Dependency) -> Dict:
     if response.status_code == 200:
         return json.loads(response.text)
     raise requests.RequestException("Status code was not 200")
+
+
+class ClearlyDefinedResult:
+    def __init__(self, json_dict: Dict):
+        self._json_dict = json_dict
+
+    @property
+    def score(self) -> int:
+        return self._json_dict["scores"]["effective"]
