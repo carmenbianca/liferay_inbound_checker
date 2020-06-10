@@ -73,7 +73,6 @@ class Result:
         self.dependency = dependency
         self.success = None
         self.reasons = []
-        self.could_not_download = False
 
 
 def check(dependency: Dependency) -> Result:
@@ -88,7 +87,6 @@ def check(dependency: Dependency) -> Result:
         )
     except RequestException as err:
         result.success = False
-        result.could_not_download = True
         result.reasons = [str(err)]
         return result
 

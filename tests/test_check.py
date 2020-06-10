@@ -77,7 +77,6 @@ def test_check_could_not_download(mocker):
 
     result = check(Dependency("a", "b", "c"))
     assert not result.success
-    assert result.could_not_download
     assert result.reasons
 
 
