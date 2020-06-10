@@ -6,9 +6,12 @@ import json
 from typing import Dict, Set
 
 import requests
+from license_expression import ExpressionError, Licensing
 from requests.compat import urljoin
 
 from .dependencies import Dependency
+
+_LICENSING = Licensing()
 
 
 def definitions_from_clearlydefined(dependency: Dependency) -> Dict:
@@ -35,6 +38,20 @@ class ClearlyDefinedDefinitions:
         result = {self._json_dict["licensed"]["declared"]}
         for _, facet in self._json_dict["licensed"]["facets"].items():
             result = result.union(set(facet["discovered"]["expressions"]))
+        return result
+
+    @property
+    def discovered_licenses(self) -> Set[str]:
+        """
+        :raises ExpressionError: if expression could not be parsed.
+        """
+        result = set()
+        expressions = self.discovered_license_expressions
+        for expression in expressions:
+            parsed = _LICENSING.parse(expression)
+            licenses = _LICENSING.license_keys(parsed)
+            for lic in licenses:
+                result.add(lic)
         return result
 
     @property

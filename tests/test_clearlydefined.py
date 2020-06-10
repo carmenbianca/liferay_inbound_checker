@@ -86,3 +86,10 @@ def test_discovered_license_expressions_different():
         "CC0-1.0",
         "NOASSERTION",
     }
+
+
+def test_discovered_licenses(clearlydefined_definitions):
+    clearlydefined_definitions.discovered_licenses == {
+        "Apache-2.0",
+        "BSD-3-Clause",
+    }

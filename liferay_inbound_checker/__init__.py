@@ -20,3 +20,18 @@ def cwd(path):
         yield
     finally:
         os.chdir(old_pwd)
+
+
+# This whitelist is manually copied from the Liferay Inbound Licensing Policy.
+LICENSE_WHITELIST = [
+    "0BSD",
+    "Apache-2.0",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "CC0-1.0",
+    "ISC",
+    "MIT",
+    # Not on the list, but should be
+    "LGPL-2.1-or-later",
+    "LGPL-3.0-or-later",
+]
