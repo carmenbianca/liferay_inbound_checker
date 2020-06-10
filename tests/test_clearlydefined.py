@@ -9,7 +9,7 @@ import pytest
 from requests import RequestException
 
 from liferay_inbound_checker.clearlydefined import (
-    ClearlyDefinedResult,
+    ClearlyDefinedDefinitions,
     definitions_from_clearlydefined,
 )
 from liferay_inbound_checker.dependencies import Dependency
@@ -48,18 +48,18 @@ def test_definitions_bad_status_code(mocker):
         definitions_from_clearlydefined(Dependency("a", "b", "c"))
 
 
-def test_score(clearlydefined_result):
-    assert clearlydefined_result.score == 80
+def test_score(clearlydefined_definitions):
+    assert clearlydefined_definitions.score == 80
 
 
 def test_score_different(clearlydefined_dict):
     clearlydefined_dict["scores"]["effective"] = 5
-    result = ClearlyDefinedResult(clearlydefined_dict)
+    result = ClearlyDefinedDefinitions(clearlydefined_dict)
     assert result.score == 5
 
 
-def test_discovered_license_expressions(clearlydefined_result):
-    assert clearlydefined_result.discovered_license_expressions == {
+def test_discovered_license_expressions(clearlydefined_definitions):
+    assert clearlydefined_definitions.discovered_license_expressions == {
         "Apache-2.0",
         "Apache-2.0 AND BSD-3-Clause",
     }
@@ -79,7 +79,7 @@ def test_discovered_license_expressions_different():
             },
         }
     }
-    result = ClearlyDefinedResult(json_dict)
+    result = ClearlyDefinedDefinitions(json_dict)
     assert result.discovered_license_expressions == {
         "MIT",
         "GPL-3.0-or-later",

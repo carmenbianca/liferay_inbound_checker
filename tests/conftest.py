@@ -7,7 +7,7 @@ from inspect import cleandoc
 
 import pytest
 
-from liferay_inbound_checker.clearlydefined import ClearlyDefinedResult
+from liferay_inbound_checker.clearlydefined import ClearlyDefinedDefinitions
 from liferay_inbound_checker.dependencies import convert_to_tree
 
 
@@ -235,5 +235,5 @@ def clearlydefined_dict(clearlydefined_json):
 
 
 @pytest.fixture()
-def clearlydefined_result(clearlydefined_dict):
-    return ClearlyDefinedResult(clearlydefined_dict)
+def clearlydefined_definitions(clearlydefined_dict):
+    return ClearlyDefinedDefinitions(clearlydefined_dict)

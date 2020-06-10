@@ -26,7 +26,7 @@ def definitions_from_clearlydefined(dependency: Dependency) -> Dict:
     raise requests.RequestException("Status code was not 200")
 
 
-class ClearlyDefinedResult:
+class ClearlyDefinedDefinitions:
     def __init__(self, json_dict: Dict):
         self._json_dict = json_dict
 
