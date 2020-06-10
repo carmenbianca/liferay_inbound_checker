@@ -4,8 +4,6 @@
 
 """Tests for extracting dependencies."""
 
-import pytest
-
 from liferay_inbound_checker.dependencies import (
     Dependency,
     dependencies_from_tree,

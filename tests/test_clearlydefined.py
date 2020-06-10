@@ -93,3 +93,12 @@ def test_discovered_licenses(clearlydefined_definitions):
         "Apache-2.0",
         "BSD-3-Clause",
     }
+
+
+def test_is_empty():
+    definitions = ClearlyDefinedDefinitions(dict())
+    assert definitions.is_empty()
+
+
+def test_is_not_empty(clearlydefined_definitions):
+    assert not clearlydefined_definitions.is_empty()

@@ -64,7 +64,6 @@ coverage: ## check code coverage quickly with the default Python
 	coverage run --source liferay_inbound_checker -m pytest
 	coverage report -m
 	coverage html
-	$(BROWSER) htmlcov/index.html
 
 docs: ## generate Sphinx HTML documentation, including API docs
 	rm -f docs/liferay_inbound_checker.rst

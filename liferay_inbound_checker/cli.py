@@ -4,12 +4,11 @@
 
 """Console script for liferay_inbound_checker."""
 import sys
-from pathlib import Path
 
 import click
 from requests import RequestException
 
-from liferay_inbound_checker.check import LicenseWhitelistedCheck, ScoreCheck
+from liferay_inbound_checker.check import check_all
 from liferay_inbound_checker.clearlydefined import (
     ClearlyDefinedDefinitions,
     definitions_from_clearlydefined,
@@ -22,44 +21,33 @@ from liferay_inbound_checker.dependencies import (
 
 
 @click.command()
-def main(args=None):
+@click.argument("portal_path")
+def main(portal_path):
     """Console script for liferay_inbound_checker."""
     success = True
 
-    pom_xml = generate_pom(Path.home() / "Projektoj/liferay-portal")
+    click.echo("Generating list of dependencies.")
+    pom_xml = generate_pom(portal_path)
     root = convert_to_tree(pom_xml)
     dependencies = dependencies_from_tree(root)
+    click.echo("Success!")
 
-    for dependency in dependencies:
-        dependency_success = True
-        click.echo()
-        click.echo(
-            f"{dependency.groupid}/{dependency.artifactid}@{dependency.version}"
-        )
-        try:
-            definitions = ClearlyDefinedDefinitions(
-                definitions_from_clearlydefined(dependency)
+    success = True
+    for result in check_all(dependencies):
+        if not result.success:
+            success = False
+            click.echo()
+            click.echo(
+                f"{result.dependency.groupid}/{result.dependency.artifactid}@{result.dependency.version}"
             )
-        except RequestException:
-            click.echo(f"Could not download definitions.")
-            continue
-
-        if definitions.score == 0:
-            pass
-
-        score_check = ScoreCheck()
-        if not score_check.process(definitions):
-            success = dependency_success = False
-            click.echo(score_check.reasons[0])
-
-        license_whitelisted_check = LicenseWhitelistedCheck()
-        if not license_whitelisted_check.process(definitions):
-            success = dependency_success = False
-            for reason in license_whitelisted_check.reasons:
+            for reason in result.reasons:
                 click.echo(reason)
-
-        if dependency_success:
-            click.echo("Good.")
+        else:
+            click.echo()
+            click.echo(
+                f"{result.dependency.groupid}/{result.dependency.artifactid}@{result.dependency.version}"
+            )
+            click.echo("Good")
 
     return success
 

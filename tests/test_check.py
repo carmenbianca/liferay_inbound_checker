@@ -4,7 +4,14 @@
 
 """Tests for the checks."""
 
-from liferay_inbound_checker.check import LicenseWhitelistedCheck, ScoreCheck
+from requests import RequestException
+
+from liferay_inbound_checker.check import (
+    LicenseWhitelistedCheck,
+    ScoreCheck,
+    check,
+)
+from liferay_inbound_checker.dependencies import Dependency
 
 
 class ScoreMock:
@@ -60,3 +67,26 @@ def test_whitelisted_check_only_noassertion():
     assert not result
     assert not check.success
     assert len(check.reasons) == 1
+
+
+def test_check_could_not_download(mocker):
+    mocker.patch(
+        "liferay_inbound_checker.check.definitions_from_clearlydefined",
+        side_effect=RequestException(),
+    )
+
+    result = check(Dependency("a", "b", "c"))
+    assert not result.success
+    assert result.could_not_download
+    assert result.reasons
+
+
+def test_check_simple(mocker, clearlydefined_dict):
+    clearlydefined_dict["scores"]["effective"] = 83
+    mocker.patch(
+        "liferay_inbound_checker.check.definitions_from_clearlydefined",
+        return_value=clearlydefined_dict,
+    )
+
+    result = check(Dependency("a", "b", "c"))
+    assert result.success

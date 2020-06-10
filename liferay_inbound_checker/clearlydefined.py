@@ -7,7 +7,7 @@ from contextlib import suppress
 from typing import Dict, Set
 
 import requests
-from license_expression import ExpressionError, Licensing
+from license_expression import Licensing
 from requests.compat import urljoin
 
 from .dependencies import Dependency
@@ -27,7 +27,9 @@ def definitions_from_clearlydefined(dependency: Dependency) -> Dict:
 
     if response.status_code == 200:
         return json.loads(response.text)
-    raise requests.RequestException("Status code was not 200")
+    raise requests.RequestException(
+        f"Status code of '{url}' was {response.status_code}"
+    )
 
 
 class ClearlyDefinedDefinitions:

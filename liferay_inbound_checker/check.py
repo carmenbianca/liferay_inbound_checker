@@ -3,9 +3,16 @@
 # SPDX-License-Identifier: LGPL-2.1-or-later
 
 from abc import ABC, abstractmethod
+from typing import Iterator, List
+
+from requests import RequestException
 
 from liferay_inbound_checker import LICENSE_WHITELIST
-from liferay_inbound_checker.clearlydefined import ClearlyDefinedDefinitions
+from liferay_inbound_checker.clearlydefined import (
+    ClearlyDefinedDefinitions,
+    definitions_from_clearlydefined,
+)
+from liferay_inbound_checker.dependencies import Dependency
 
 
 class BaseCheck(ABC):
@@ -59,3 +66,41 @@ class LicenseWhitelistedCheck(BaseCheck):
         self.success = success
         self.reasons = reasons
         return self.success
+
+
+class Result:
+    def __init__(self, dependency=None):
+        self.dependency = dependency
+        self.success = None
+        self.reasons = []
+        self.could_not_download = False
+
+
+def check(dependency: Dependency) -> Result:
+    result = Result(dependency)
+    result.success = True
+
+    # FIXME: Ignore whitelisted thingamajigs.
+
+    try:
+        definitions = ClearlyDefinedDefinitions(
+            definitions_from_clearlydefined(dependency)
+        )
+    except RequestException as err:
+        result.success = False
+        result.could_not_download = True
+        result.reasons = [str(err)]
+        return result
+
+    for check_cls in (ScoreCheck, LicenseWhitelistedCheck):
+        check = check_cls()
+        if not check.process(definitions):
+            result.success = False
+            result.reasons.extend(check.reasons)
+
+    return result
+
+
+def check_all(dependencies: List[Dependency]) -> Iterator[Result]:
+    for dependency in dependencies:
+        yield check(dependency)
