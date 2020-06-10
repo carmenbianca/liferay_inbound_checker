@@ -3,7 +3,10 @@
 # SPDX-License-Identifier: LGPL-2.1-or-later
 
 from inspect import cleandoc
+
 import pytest
+
+from liferay_inbound_checker.dependencies import convert_to_tree
 
 
 @pytest.fixture()

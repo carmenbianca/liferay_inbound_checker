@@ -5,9 +5,11 @@
 """Interactions with dependencies."""
 
 import subprocess
+from copy import copy
 from os import PathLike
 from pathlib import Path
-from typing import NamedTuple, List
+from typing import List, NamedTuple
+from xml.etree.ElementTree import Element, fromstring
 
 from . import cwd
 
@@ -37,6 +39,26 @@ def generate_pom(portal_directory: PathLike) -> str:
         Path(portal_directory)
         / "modules/build/release.portal.bom.third.party-unspecified.pom"
     ).read_text()
+
+
+def _remove_namespace_from_xml(root: Element) -> Element:
+    """ElementTree very annoyingly puts the XML namespace in tall tags like
+    '{namespace}tag'. This function removes that.
+    """
+    root = copy(root)
+
+    for element in root.iter():
+        _, has_namespace, postfix = element.tag.partition("}")
+        if has_namespace:
+            element.tag = postfix
+
+    return root
+
+
+def convert_to_tree(xml: str) -> Element:
+    """Convert an XML string to an XML tree object."""
+    root = fromstring(xml)
+    return _remove_namespace_from_xml(root)
 
 
 def extract_from_pom(pom: str) -> List[Dependency]:

@@ -4,9 +4,12 @@
 
 """Tests for extracting dependencies."""
 
-from liferay_inbound_checker.dependencies import extract_from_pom, Dependency
+import pytest
+
+from liferay_inbound_checker.dependencies import Dependency, extract_from_pom
 
 
+@pytest.mark.xfail
 def test_extract_dependencies(sample_pom):
     """Given a sample pom, extract the dependencies."""
     result = extract_from_pom(sample_pom)

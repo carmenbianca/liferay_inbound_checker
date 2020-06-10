@@ -10,7 +10,7 @@ from pathlib import Path
 from unittest.mock import create_autospec
 
 from liferay_inbound_checker import cwd
-from liferay_inbound_checker.dependencies import generate_pom
+from liferay_inbound_checker.dependencies import convert_to_tree, generate_pom
 
 
 def test_generate_pom(mocker):
@@ -26,3 +26,10 @@ def test_generate_pom(mocker):
     )
     Path.read_text.assert_called()
     assert result == "Hello, world!"
+
+
+def test_convert_to_tree(sample_pom):
+    root = convert_to_tree(sample_pom)
+    assert root.tag == "project"
+    dependencies = root.find("dependencyManagement").find("dependencies")
+    assert len(dependencies) == 2
