@@ -56,3 +56,33 @@ def test_score_different(clearlydefined_dict):
     clearlydefined_dict["scores"]["effective"] = 5
     result = ClearlyDefinedResult(clearlydefined_dict)
     assert result.score == 5
+
+
+def test_discovered_license_expressions(clearlydefined_result):
+    assert clearlydefined_result.discovered_license_expressions == {
+        "Apache-2.0",
+        "Apache-2.0 AND BSD-3-Clause",
+    }
+
+
+def test_discovered_license_expressions_different():
+    json_dict = {
+        "licensed": {
+            "declared": "GPL-3.0-or-later",
+            "facets": {
+                "core": {
+                    "discovered": {"expressions": ["MIT", "GPL-3.0-or-later"],}
+                },
+                "test": {
+                    "discovered": {"expressions": ["CC0-1.0", "NOASSERTION"]}
+                },
+            },
+        }
+    }
+    result = ClearlyDefinedResult(json_dict)
+    assert result.discovered_license_expressions == {
+        "MIT",
+        "GPL-3.0-or-later",
+        "CC0-1.0",
+        "NOASSERTION",
+    }

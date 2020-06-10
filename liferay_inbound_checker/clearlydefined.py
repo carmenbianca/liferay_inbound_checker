@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: LGPL-2.1-or-later
 
 import json
-from typing import Dict
+from typing import Dict, Set
 
 import requests
 from requests.compat import urljoin
@@ -29,6 +29,13 @@ def definitions_from_clearlydefined(dependency: Dependency) -> Dict:
 class ClearlyDefinedResult:
     def __init__(self, json_dict: Dict):
         self._json_dict = json_dict
+
+    @property
+    def discovered_license_expressions(self) -> Set[str]:
+        result = {self._json_dict["licensed"]["declared"]}
+        for _, facet in self._json_dict["licensed"]["facets"].items():
+            result = result.union(set(facet["discovered"]["expressions"]))
+        return result
 
     @property
     def score(self) -> int:
