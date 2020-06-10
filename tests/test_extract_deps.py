@@ -6,13 +6,15 @@
 
 import pytest
 
-from liferay_inbound_checker.dependencies import Dependency, extract_from_pom
+from liferay_inbound_checker.dependencies import (
+    Dependency,
+    dependencies_from_tree,
+)
 
 
-@pytest.mark.xfail
-def test_extract_dependencies(sample_pom):
+def test_extract_dependencies(sample_pom_root):
     """Given a sample pom, extract the dependencies."""
-    result = extract_from_pom(sample_pom)
+    result = dependencies_from_tree(sample_pom_root)
     assert sorted(result) == [
         Dependency(
             "com.liferay",

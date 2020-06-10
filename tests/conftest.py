@@ -64,3 +64,8 @@ def sample_pom():
         </project>
         """
     )
+
+
+@pytest.fixture()
+def sample_pom_root(sample_pom):
+    return convert_to_tree(sample_pom)

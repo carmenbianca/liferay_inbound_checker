@@ -23,7 +23,7 @@ class Dependency(NamedTuple):
 
     @property
     def name(self):
-        return f"{self.groupid}.{self.artifactid}"
+        return f"{self.groupid}/{self.artifactid}"
 
 
 def generate_pom(portal_directory: PathLike) -> str:
@@ -61,5 +61,19 @@ def convert_to_tree(xml: str) -> Element:
     return _remove_namespace_from_xml(root)
 
 
-def extract_from_pom(pom: str) -> List[Dependency]:
-    return []
+def dependencies_from_tree(root: Element) -> List[Dependency]:
+    """Turn an XML tree into a flat list of dependencies.
+
+    :raises AttributeError: if the tree does not contain dependencies.
+    """
+    dependencies = root.find("dependencyManagement").find("dependencies")
+    result = []
+    for dependency in dependencies:
+        result.append(
+            Dependency(
+                dependency.find("groupId").text,
+                dependency.find("artifactId").text,
+                dependency.find("version").text,
+            )
+        )
+    return result
