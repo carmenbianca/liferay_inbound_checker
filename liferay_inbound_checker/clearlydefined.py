@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: LGPL-2.1-or-later
 
 import json
+from contextlib import suppress
 from typing import Dict, Set
 
 import requests
@@ -33,11 +34,32 @@ class ClearlyDefinedDefinitions:
     def __init__(self, json_dict: Dict):
         self._json_dict = json_dict
 
+    def is_empty(self) -> bool:
+        """ClearlyDefined sometimes returns empty definitions. This method
+        does a naive check to verify for that.
+        """
+        try:
+            self._json_dict["described"]["hashes"]["sha1"]
+            return False
+        except KeyError:
+            return True
+
     @property
     def discovered_license_expressions(self) -> Set[str]:
-        result = {self._json_dict["licensed"]["declared"]}
-        for _, facet in self._json_dict["licensed"]["facets"].items():
-            result = result.union(set(facet["discovered"]["expressions"]))
+        result = set()
+
+        with suppress(KeyError):
+            result = result.union({self._json_dict["licensed"]["declared"]})
+
+        try:
+            facets = self._json_dict["licensed"]["facets"].values()
+        except KeyError:
+            return result
+
+        for facet in facets:
+            with suppress(KeyError):
+                result = result.union(set(facet["discovered"]["expressions"]))
+
         return result
 
     @property

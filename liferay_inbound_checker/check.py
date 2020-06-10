@@ -29,7 +29,8 @@ class ScoreCheck(BaseCheck):
         self.success = definitions.score >= self.TARGET_NUMBER
         if not self.success:
             self.reasons = [
-                f"Score is {definitions.score}, lower than {self.TARGET_NUMBER}"
+                f"Score is {definitions.score}, lower than"
+                f" {self.TARGET_NUMBER}."
             ]
         return self.success
 
@@ -41,14 +42,19 @@ class LicenseWhitelistedCheck(BaseCheck):
         licenses = definitions.discovered_licenses
         if not licenses:
             success = False
-            reasons.append("Component has no discovered licenses")
+            reasons.append("Component has no discovered licenses.")
         for lic in licenses:
             if lic not in LICENSE_WHITELIST:
                 success = False
                 reasons.append(
-                    f"Component has discovered license '{lic}'', which is not"
+                    f"Component has discovered license '{lic}', which is not"
                     f" whitelisted."
                 )
+        if licenses == {"NOASSERTION"}:
+            success = False
+            reasons.append(
+                "Component only has 'NOASSERTION' as discovered license."
+            )
 
         self.success = success
         self.reasons = reasons

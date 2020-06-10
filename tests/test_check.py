@@ -4,7 +4,7 @@
 
 """Tests for the checks."""
 
-from liferay_inbound_checker.check import ScoreCheck, LicenseWhitelistedCheck
+from liferay_inbound_checker.check import LicenseWhitelistedCheck, ScoreCheck
 
 
 class ScoreMock:
@@ -49,6 +49,14 @@ def test_whitelisted_check_not_whitelisted():
 def test_whitelisted_check_no_licenses():
     check = LicenseWhitelistedCheck()
     result = check.process(DiscoveredMock(set()))
+    assert not result
+    assert not check.success
+    assert len(check.reasons) == 1
+
+
+def test_whitelisted_check_only_noassertion():
+    check = LicenseWhitelistedCheck()
+    result = check.process(DiscoveredMock({"NOASSERTION"}))
     assert not result
     assert not check.success
     assert len(check.reasons) == 1
