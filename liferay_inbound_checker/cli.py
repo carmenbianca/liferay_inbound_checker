@@ -1,14 +1,17 @@
 # SPDX-FileCopyrightText: © 2020 Liferay, Inc. <https://liferay.com>
 #
+# SPDX-FileAttributionText: Stefan Bakker <s.bakker777@gmail.com>
+#
 # SPDX-License-Identifier: LGPL-2.1-or-later
 
 """Console script for liferay_inbound_checker."""
 import sys
+from multiprocessing.pool import ThreadPool
 
 import click
 from requests import RequestException
 
-from liferay_inbound_checker.check import check_all
+from liferay_inbound_checker.check import check
 from liferay_inbound_checker.clearlydefined import (
     ClearlyDefinedDefinitions,
     definitions_from_clearlydefined,
@@ -33,7 +36,14 @@ def main(portal_path):
     click.echo("Success!")
 
     success = True
-    for result in check_all(dependencies):
+
+    pool = ThreadPool(4)
+    multiple_results = [
+        pool.apply_async(check, (dependency,)) for dependency in dependencies
+    ]
+
+    for result in multiple_results:
+        result = result.get()
         if not result.success:
             success = False
             click.echo()
@@ -47,7 +57,7 @@ def main(portal_path):
             click.echo(
                 f"{result.dependency.groupid}/{result.dependency.artifactid}@{result.dependency.version}"
             )
-            click.echo("Good")
+            click.echo("Good.")
 
     return success
 
