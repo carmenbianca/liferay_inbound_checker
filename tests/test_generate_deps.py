@@ -7,9 +7,7 @@
 import os
 import subprocess
 from pathlib import Path
-from unittest.mock import create_autospec
 
-from liferay_inbound_checker import cwd
 from liferay_inbound_checker.dependencies import convert_to_tree, generate_pom
 
 
