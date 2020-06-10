@@ -21,14 +21,14 @@ def test_score_check():
     check = ScoreCheck()
     for i in range(83, 101):
         result = check.process(ScoreMock(i))
-        assert check.success
         assert result
+        assert check.success
 
     for i in range(0, 83):
         result = check.process(ScoreMock(i))
+        assert not result
         assert not check.success
         assert check.reasons
-        assert not result
 
 
 def test_whitelisted_check(clearlydefined_definitions):
