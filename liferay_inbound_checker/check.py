@@ -4,6 +4,8 @@
 
 from abc import ABC, abstractmethod
 from typing import Iterator, List, Dict
+from os import PathLike
+import yaml
 
 from requests import RequestException
 
@@ -13,6 +15,12 @@ from liferay_inbound_checker.clearlydefined import (
     definitions_from_clearlydefined,
 )
 from liferay_inbound_checker.dependencies import Dependency
+
+
+def load_whitelist(path: PathLike) -> List[Dict]:
+    """Given a path, parse the yaml inside."""
+    with open(path) as fp:
+        return yaml.safe_load(fp)
 
 
 def is_whitelisted(dependency: Dependency, whitelist: List[Dict]) -> bool:
@@ -86,9 +94,16 @@ class Result:
         self.reasons = []
 
 
-def check(dependency: Dependency) -> Result:
+def check(dependency: Dependency, whitelist: List[Dict] = None) -> Result:
+    if whitelist is None:
+        whitelist = []
+
     result = Result(dependency)
     result.success = True
+
+    if is_whitelisted(dependency, whitelist):
+        result.reasons = ["Whitelisted."]
+        return result
 
     try:
         definitions = ClearlyDefinedDefinitions(

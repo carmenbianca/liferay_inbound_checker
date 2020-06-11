@@ -21,6 +21,9 @@ class Dependency(NamedTuple):
     artifactid: str
     version: str
 
+    def __str__(self):
+        return f"{self.groupid}/{self.artifactid}@{self.version}"
+
 
 def generate_pom(portal_directory: PathLike) -> str:
     """Generate the POM of dependencies of *portal_directory* and return the POM

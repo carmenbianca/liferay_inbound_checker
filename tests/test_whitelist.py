@@ -5,7 +5,8 @@
 """Tests for the whitelisting of dependencies."""
 
 from liferay_inbound_checker.dependencies import Dependency
-from liferay_inbound_checker.check import is_whitelisted
+from liferay_inbound_checker.check import is_whitelisted, check
+from requests import RequestException
 
 import pytest
 
@@ -42,3 +43,15 @@ def test_is_not_whitelisted(simple_whitelist):
 def test_is_whitelisted_bad_whitelist():
     whitelist = [{"not_a_name": "foo", "not_a_version": "bar"}]
     assert not is_whitelisted(Dependency("a", "b", "c"), whitelist)
+
+
+def test_check_with_whitelist(mocker, simple_whitelist):
+    mocker.patch(
+        "liferay_inbound_checker.check.definitions_from_clearlydefined",
+        side_effect=RequestException(),
+    )
+    dependency = Dependency(
+        "org.springframework", "spring-context", "5.2.2.RELEASE"
+    )
+    result = check(dependency, simple_whitelist)
+    assert result.success

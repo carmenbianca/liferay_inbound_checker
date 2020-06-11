@@ -11,7 +11,7 @@ from multiprocessing.pool import ThreadPool
 import click
 from requests import RequestException
 
-from liferay_inbound_checker.check import check
+from liferay_inbound_checker.check import check, load_whitelist, is_whitelisted
 from liferay_inbound_checker.clearlydefined import (
     ClearlyDefinedDefinitions,
     definitions_from_clearlydefined,
@@ -35,11 +35,23 @@ def main(portal_path):
     dependencies = dependencies_from_tree(root)
     click.echo("Success!")
 
+    click.echo("Loading whitelist.")
+    try:
+        whitelist = load_whitelist(
+            f"{portal_path}/inbound_licensing_whitelist.yaml"
+        )
+    except FileNotFoundError:
+        whitelist = []
+        click.echo("Could not find whitelist.")
+    else:
+        click.echo("Success!")
+
     success = True
 
     pool = ThreadPool(4)
     multiple_results = [
-        pool.apply_async(check, (dependency,)) for dependency in dependencies
+        pool.apply_async(check, (dependency, whitelist))
+        for dependency in dependencies
     ]
 
     for result in multiple_results:
@@ -47,16 +59,12 @@ def main(portal_path):
         if not result.success:
             success = False
             click.echo()
-            click.echo(
-                f"{result.dependency.groupid}/{result.dependency.artifactid}@{result.dependency.version}"
-            )
+            click.echo(result.dependency)
             for reason in result.reasons:
                 click.echo(reason)
         else:
             click.echo()
-            click.echo(
-                f"{result.dependency.groupid}/{result.dependency.artifactid}@{result.dependency.version}"
-            )
+            click.echo(result.dependency)
             click.echo("Good.")
 
     return success
