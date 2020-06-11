@@ -42,3 +42,50 @@ LICENSE_WHITELIST = [
     # Edge case
     # "NOASSERTION",
 ]
+
+# This blacklist is manually copied from the Liferay Inbound Licensing Policy.
+LICENSE_BLACKLIST = [
+    # # Can't be used in Portal
+    # "AGPL-1.0-only",
+    # "AGPL-1.0-or-later",
+    # "AGPL-1.0",
+    # "AGPL-3.0-only",
+    # "AGPL-3.0-or-later",
+    # "AGPL-3.0",
+    # "GPL-1.0-only",
+    # "GPL-1.0-or-later",
+    # "GPL-1.0",
+    # "GPL-2.0-only",
+    # "GPL-2.0-or-later",
+    # "GPL-2.0",
+    # "GPL-3.0-only",
+    # "GPL-3.0-or-later",
+    # "GPL-3.0",
+    # # Requires Legal approval
+    # "BSD-3-Clause-Attribution",
+    # "BSD-3-Clause-Clear",
+    # "BSD-4-Clause",
+    # "MIT-advertising",
+    # "MPL-1.1",
+    # "SSPL-1.0",
+    # # Don't even bother
+    "BSD-3-Clause-No-Nuclear-License",
+    "BSD-3-Clause-No-Nuclear-License-2014",
+    "BSD-3-Clause-No-Nuclear-Warranty",
+    "JSON",
+    "CC-BY-NC-1.0",
+    "CC-BY-NC-2.0",
+    "CC-BY-NC-2.5",
+    "CC-BY-NC-3.0",
+    "CC-BY-NC-4.0",
+    "CC-BY-NC-ND-1.0",
+    "CC-BY-NC-ND-2.0",
+    "CC-BY-NC-ND-2.5",
+    "CC-BY-NC-ND-3.0",
+    "CC-BY-NC-ND-4.0",
+    "CC-BY-NC-SA-1.0",
+    "CC-BY-NC-SA-2.0",
+    "CC-BY-NC-SA-2.5",
+    "CC-BY-NC-SA-3.0",
+    "CC-BY-NC-SA-4.0",
+]
