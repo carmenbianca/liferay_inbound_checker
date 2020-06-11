@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: LGPL-2.1-or-later
 
 from abc import ABC, abstractmethod
-from typing import Iterator, List
+from typing import Iterator, List, Dict
 
 from requests import RequestException
 
@@ -13,6 +13,17 @@ from liferay_inbound_checker.clearlydefined import (
     definitions_from_clearlydefined,
 )
 from liferay_inbound_checker.dependencies import Dependency
+
+
+def is_whitelisted(dependency: Dependency, whitelist: List[Dict]) -> bool:
+    name = f"{dependency.groupid}/{dependency.artifactid}"
+    for item in whitelist:
+        try:
+            if item["name"] == name and item["version"] == dependency.version:
+                return True
+        except (KeyError, TypeError):
+            continue
+    return False
 
 
 class BaseCheck(ABC):
@@ -78,8 +89,6 @@ class Result:
 def check(dependency: Dependency) -> Result:
     result = Result(dependency)
     result.success = True
-
-    # FIXME: Ignore whitelisted thingamajigs.
 
     try:
         definitions = ClearlyDefinedDefinitions(
