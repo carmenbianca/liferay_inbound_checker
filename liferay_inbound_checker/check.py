@@ -85,13 +85,13 @@ class LicenseWhitelistedCheck(BaseCheck):
                         f" not whitelisted."
                     )
                 )
-        if licenses == {"NOASSERTION"}:
-            success = False
-            reasons.append(
-                OnlyNoassertionReason(
-                    "Component only has 'NOASSERTION' as discovered license."
-                )
-            )
+        # if licenses == {"NOASSERTION"}:
+        #     success = False
+        #     reasons.append(
+        #         OnlyNoassertionReason(
+        #             "Component only has 'NOASSERTION' as discovered license."
+        #         )
+        #     )
 
         self.success = success
         self.reasons = reasons

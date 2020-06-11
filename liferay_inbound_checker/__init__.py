@@ -35,5 +35,5 @@ LICENSE_WHITELIST = [
     "LGPL-2.1-or-later",
     "LGPL-3.0-or-later",
     # Edge case
-    "NOASSERTION",
+    # "NOASSERTION",
 ]
