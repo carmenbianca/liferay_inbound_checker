@@ -21,6 +21,7 @@ from liferay_inbound_checker.dependencies import (
     dependencies_from_tree,
     generate_pom,
 )
+from inspect import cleandoc
 
 
 @click.command()
@@ -46,6 +47,9 @@ def main(portal_path):
     else:
         click.echo("Success!")
 
+    click.echo()
+    click.echo("Evaluating dependencies for their licensing.")
+
     success = True
 
     pool = ThreadPool(4)
@@ -54,18 +58,43 @@ def main(portal_path):
         for dependency in dependencies
     ]
 
+    calculated_results = []
+
     for result in multiple_results:
         result = result.get()
+        calculated_results.append(result)
         if not result.success:
             success = False
             click.echo()
             click.echo(result.dependency)
             for reason in result.reasons:
                 click.echo(reason)
-        else:
-            click.echo()
-            click.echo(result.dependency)
-            click.echo("Good.")
+
+    failures = sum(1 for result in calculated_results if not result.success)
+    successes = len(calculated_results) - failures
+
+    click.echo()
+    click.echo(f"Successful dependencies: {successes}")
+    click.echo(f"Failed dependencies: {failures}")
+
+    if not success:
+        click.echo()
+        click.echo(
+            cleandoc(
+                """
+                Some of the declared dependencies did not meet the requirements for automated licensing compliance.
+
+                If there were errors in retrieving internet results, investigate the problem or simply try running the test again.
+
+                For other errors, please open an issue at <https://issues.liferay.com/projects/FOSS/issues/>. Please include the name and version of the component.
+
+                The full details of the licensing requirements can be found in the Liferay Inbound Licensing Policy at <https://grow.liferay.com/excellence/Liferay+Inbound+Licensing+Policy>.
+                """
+            )
+        )
+    else:
+        click.echo()
+        click.echo("No failures. Success!")
 
     return success
 

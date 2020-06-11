@@ -13,6 +13,7 @@ from liferay_inbound_checker import LICENSE_WHITELIST
 from liferay_inbound_checker.clearlydefined import (
     ClearlyDefinedDefinitions,
     definitions_from_clearlydefined,
+    clearlydefined_url,
 )
 from liferay_inbound_checker.dependencies import Dependency
 
@@ -55,8 +56,10 @@ class ScoreCheck(BaseCheck):
         self.success = definitions.score >= self.TARGET_NUMBER
         if not self.success:
             self.reasons = [
-                f"Score is {definitions.score}, lower than"
-                f" {self.TARGET_NUMBER}."
+                ScoreTooLowReason(
+                    f"Score is {definitions.score}, lower than"
+                    f" {self.TARGET_NUMBER}."
+                )
             ]
         return self.success
 
@@ -68,23 +71,69 @@ class LicenseWhitelistedCheck(BaseCheck):
         licenses = definitions.discovered_licenses
         if not licenses:
             success = False
-            reasons.append("Component has no discovered licenses.")
+            reasons.append(
+                NoDiscoveredLicensesReason(
+                    "Component has no discovered licenses."
+                )
+            )
         for lic in licenses:
             if lic not in LICENSE_WHITELIST:
                 success = False
                 reasons.append(
-                    f"Component has discovered license '{lic}', which is not"
-                    f" whitelisted."
+                    NotWhitelistedLicenseReason(
+                        f"Component has discovered license '{lic}', which is"
+                        f" not whitelisted."
+                    )
                 )
         if licenses == {"NOASSERTION"}:
             success = False
             reasons.append(
-                "Component only has 'NOASSERTION' as discovered license."
+                OnlyNoassertionReason(
+                    "Component only has 'NOASSERTION' as discovered license."
+                )
             )
 
         self.success = success
         self.reasons = reasons
         return self.success
+
+
+class Reason:
+    """Base class for reasons for a check failing."""
+
+    advice = ""
+
+    def __init__(self, reason=None):
+        self.reason = reason
+
+    def __str__(self):
+        return str(self.reason)
+
+
+class RequestExceptionReason(Reason):
+    """Couldn't connect to the URL."""
+
+    def __init__(self, reason, url):
+        super().__init__(reason)
+        self.url = url
+
+    def __str__(self):
+        return f"{self.url}: {super().__str__()}"
+
+
+class OnlyNoassertionReason(Reason):
+    pass
+
+class NoDiscoveredLicensesReason(Reason):
+    pass
+
+
+class NotWhitelistedLicenseReason(Reason):
+    pass
+
+
+class ScoreTooLowReason(Reason):
+    pass
 
 
 class Result:
@@ -102,7 +151,6 @@ def check(dependency: Dependency, whitelist: List[Dict] = None) -> Result:
     result.success = True
 
     if is_whitelisted(dependency, whitelist):
-        result.reasons = ["Whitelisted."]
         return result
 
     try:
@@ -111,7 +159,11 @@ def check(dependency: Dependency, whitelist: List[Dict] = None) -> Result:
         )
     except RequestException as err:
         result.success = False
-        result.reasons = [str(err)]
+        result.reasons = [
+            RequestExceptionReason(
+                str(err), clearlydefined_url(result.dependency)
+            )
+        ]
         return result
 
     for check_cls in (ScoreCheck, LicenseWhitelistedCheck):

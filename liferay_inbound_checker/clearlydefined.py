@@ -15,14 +15,18 @@ from .dependencies import Dependency
 _LICENSING = Licensing()
 
 
+def clearlydefined_url(dependency: Dependency) -> str:
+    return urljoin(
+        "https://api.clearlydefined.io/definitions/maven/mavencentral/",
+        f"{dependency.groupid}/{dependency.artifactid}/{dependency.version}",
+    )
+
+
 def definitions_from_clearlydefined(dependency: Dependency) -> Dict:
     """
     :raises requests.RequestException: if the request could not be made.
     """
-    url = urljoin(
-        "https://api.clearlydefined.io/definitions/maven/mavencentral/",
-        f"{dependency.groupid}/{dependency.artifactid}/{dependency.version}",
-    )
+    url = clearlydefined_url(dependency)
     response = requests.get(url)
 
     if response.status_code == 200:
