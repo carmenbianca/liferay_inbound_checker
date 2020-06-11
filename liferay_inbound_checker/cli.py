@@ -38,7 +38,7 @@ def main(portal_path):
     click.echo("Loading whitelist.")
     try:
         whitelist = load_whitelist(
-            f"{portal_path}/inbound_licensing_whitelist.yaml"
+            f"{portal_path}/inbound_licensing_whitelist.yml"
         )
     except FileNotFoundError:
         whitelist = []
