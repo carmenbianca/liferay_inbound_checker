@@ -49,7 +49,7 @@ class BaseCheck(ABC):
 
 class ScoreCheck(BaseCheck):
 
-    TARGET_NUMBER = 83
+    TARGET_NUMBER = 87
 
     def process(self, definitions: ClearlyDefinedDefinitions) -> bool:
 
