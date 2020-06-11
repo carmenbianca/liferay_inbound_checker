@@ -4,11 +4,26 @@
 
 """Tests for the whitelisting of dependencies."""
 
-from liferay_inbound_checker.dependencies import Dependency
-from liferay_inbound_checker.check import is_whitelisted, check
-from requests import RequestException
+from inspect import cleandoc
+from io import StringIO
 
 import pytest
+from requests import RequestException
+
+from liferay_inbound_checker.check import check, is_whitelisted, load_whitelist
+from liferay_inbound_checker.dependencies import Dependency
+
+
+@pytest.fixture()
+def simple_whitelist_yaml():
+    return cleandoc(
+        """
+        - name: org.springframework/spring-context
+          version: 5.2.2.RELEASE
+          issue: https://issues.example.com/123
+          comment: N/A
+        """
+    )
 
 
 @pytest.fixture()
@@ -55,3 +70,8 @@ def test_check_with_whitelist(mocker, simple_whitelist):
     )
     result = check(dependency, simple_whitelist)
     assert result.success
+
+
+def test_load_whitelist(mocker, simple_whitelist_yaml, simple_whitelist):
+    mocker.patch("builtins.open", return_value=StringIO(simple_whitelist_yaml))
+    assert load_whitelist("does-not-matter") == simple_whitelist

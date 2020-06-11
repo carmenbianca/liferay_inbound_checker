@@ -3,10 +3,10 @@
 # SPDX-License-Identifier: LGPL-2.1-or-later
 
 from abc import ABC, abstractmethod
-from typing import Iterator, List, Dict
 from os import PathLike
-import yaml
+from typing import Dict, Iterator, List
 
+import yaml
 from requests import RequestException
 
 from liferay_inbound_checker import LICENSE_WHITELIST
@@ -121,8 +121,3 @@ def check(dependency: Dependency, whitelist: List[Dict] = None) -> Result:
             result.reasons.extend(check.reasons)
 
     return result
-
-
-def check_all(dependencies: List[Dependency]) -> Iterator[Result]:
-    for dependency in dependencies:
-        yield check(dependency)

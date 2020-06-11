@@ -11,7 +11,7 @@ from multiprocessing.pool import ThreadPool
 import click
 from requests import RequestException
 
-from liferay_inbound_checker.check import check, load_whitelist, is_whitelisted
+from liferay_inbound_checker.check import check, is_whitelisted, load_whitelist
 from liferay_inbound_checker.clearlydefined import (
     ClearlyDefinedDefinitions,
     definitions_from_clearlydefined,
