@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: LGPL-2.1-or-later
 
 from abc import ABC, abstractmethod
+from inspect import cleandoc
 from os import PathLike
 from typing import Dict, Iterator, List
 
@@ -55,12 +56,7 @@ class ScoreCheck(BaseCheck):
 
         self.success = definitions.score >= self.TARGET_NUMBER
         if not self.success:
-            self.reasons = [
-                ScoreTooLowReason(
-                    f"Score is {definitions.score}, lower than"
-                    f" {self.TARGET_NUMBER}."
-                )
-            ]
+            self.reasons = [ScoreTooLowReason(definitions.score)]
         return self.success
 
 
@@ -71,20 +67,14 @@ class LicenseWhitelistedCheck(BaseCheck):
         licenses = definitions.discovered_licenses
         if not licenses:
             success = False
-            reasons.append(
-                NoDiscoveredLicensesReason(
-                    "Component has no discovered licenses."
-                )
-            )
+            reasons.append(NoDiscoveredLicensesReason())
         for lic in licenses:
-            if lic not in LICENSE_WHITELIST:
+            if lic == "NOASSERTION":
                 success = False
-                reasons.append(
-                    NotWhitelistedLicenseReason(
-                        f"Component has discovered license '{lic}', which is"
-                        f" not whitelisted."
-                    )
-                )
+                reasons.append(NoassertionDetectedReason())
+            elif lic not in LICENSE_WHITELIST:
+                success = False
+                reasons.append(NotWhitelistedLicenseReason(lic))
         # if licenses == {"NOASSERTION"}:
         #     success = False
         #     reasons.append(
@@ -101,40 +91,74 @@ class LicenseWhitelistedCheck(BaseCheck):
 class Reason:
     """Base class for reasons for a check failing."""
 
-    advice = ""
-
-    def __init__(self, reason=None):
-        self.reason = reason
+    ADVICE = ""
 
     def __str__(self):
-        return str(self.reason)
+        return str(self.ADVICE)
 
 
 class RequestExceptionReason(Reason):
     """Couldn't connect to the URL."""
 
-    def __init__(self, reason, url):
-        super().__init__(reason)
+    ADVICE = cleandoc(
+        """
+        {url}: {err}
+        There was an error in retrieving a result from an internet API. This error should be investigated. Alternatively, simply try running the test again, and hope it works.
+        """
+    )
+
+    def __init__(self, url, err):
         self.url = url
+        self.err = err
 
     def __str__(self):
-        return f"{self.url}: {super().__str__()}"
-
-
-class OnlyNoassertionReason(Reason):
-    pass
+        return self.ADVICE.format(url=self.url, err=self.err)
 
 
 class NoDiscoveredLicensesReason(Reason):
-    pass
+    ADVICE = cleandoc(
+        """
+        The dependency has no declared or detected licenses. Please search the dependency for any licensing information, and open an Inbound Licensing ticket with your findings.
+        """
+    )
 
 
 class NotWhitelistedLicenseReason(Reason):
-    pass
+    ADVICE = cleandoc(
+        """
+        '{lic}' was detected as a license of the package. This license is not pre-approved, so it needs Legal approval. Please open an Inbound Licensing ticket.
+        """
+    )
+
+    def __init__(self, lic):
+        self.lic = lic
+
+    def __str__(self):
+        return self.ADVICE.format(lic=self.lic)
+
+
+class NoassertionDetectedReason(Reason):
+    ADVICE = cleandoc(
+        """
+        'NOASSERTION' was detected as a license of the package. This may be indicative of problems. Please open an Inbound Licensing ticket.
+        """
+    )
 
 
 class ScoreTooLowReason(Reason):
-    pass
+    ADVICE = cleandoc(
+        """
+        This package scored {score} on ClearlyDefined. This is below the threshold of {target_score}. This needn't be a problem, but may be indicative of problems. Please open an Inbound Licensing ticket.
+        """
+    )
+
+    def __init__(self, score):
+        self.score = score
+
+    def __str__(self):
+        return self.ADVICE.format(
+            score=self.score, target_score=ScoreCheck.TARGET_NUMBER
+        )
 
 
 class Result:
@@ -162,7 +186,7 @@ def check(dependency: Dependency, whitelist: List[Dict] = None) -> Result:
         result.success = False
         result.reasons = [
             RequestExceptionReason(
-                str(err), clearlydefined_url(result.dependency)
+                clearlydefined_url(result.dependency), str(err),
             )
         ]
         return result

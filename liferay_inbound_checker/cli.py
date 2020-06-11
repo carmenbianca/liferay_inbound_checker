@@ -24,18 +24,16 @@ from liferay_inbound_checker.dependencies import (
 )
 
 
-@click.command()
-@click.argument("portal_path")
-def main(portal_path):
-    """Console script for liferay_inbound_checker."""
-    success = True
-
+def generate_dependencies(portal_path):
     click.echo("Generating list of dependencies.")
     pom_xml = generate_pom(portal_path)
     root = convert_to_tree(pom_xml)
     dependencies = dependencies_from_tree(root)
     click.echo("Success!")
+    return dependencies
 
+
+def load_whitelist_cli(portal_path):
     click.echo("Loading whitelist.")
     try:
         whitelist = load_whitelist(
@@ -47,6 +45,8 @@ def main(portal_path):
     else:
         click.echo("Success!")
 
+
+def check_dependencies(dependencies, whitelist):
     click.echo()
     click.echo("Evaluating dependencies for their licensing.")
 
@@ -63,12 +63,14 @@ def main(portal_path):
     for result in multiple_results:
         result = result.get()
         calculated_results.append(result)
+        click.echo()
+        click.echo(result.dependency)
         if not result.success:
             success = False
-            click.echo()
-            click.echo(result.dependency)
             for reason in result.reasons:
                 click.echo(reason)
+        else:
+            click.echo("TODO advice for good results goes here.")
 
     failures = sum(1 for result in calculated_results if not result.success)
     successes = len(calculated_results) - failures
@@ -80,23 +82,43 @@ def main(portal_path):
     if not success:
         click.echo()
         click.echo(
-            cleandoc(
-                """
-                Some of the declared dependencies did not meet the requirements for automated licensing compliance.
-
-                If there were errors in retrieving internet results, investigate the problem or simply try running the test again.
-
-                For other errors, please open an issue at <https://issues.liferay.com/projects/FOSS/issues/>. Please include the name and version of the component.
-
-                The full details of the licensing requirements can be found in the Liferay Inbound Licensing Policy at <https://grow.liferay.com/excellence/Liferay+Inbound+Licensing+Policy>.
-                """
-            )
+            "Did not succeed. Please review the above advice. If necessary, open an Inbound Licensing ticket in the FOSS project at <https://issues.liferay.com/projects/FOSS/issues/>. For more information see: <https://grow.liferay.com/excellence/Liferay+Inbound+Licensing+Policy#what-happens-when-i-open-an-inbound-licensing-ticket>."
         )
     else:
         click.echo()
         click.echo("No failures. Success!")
 
     return success
+
+
+@click.group()
+def main():
+    pass
+
+
+@main.command()
+@click.argument("portal_path")
+def all_dependencies(portal_path):
+    dependencies = generate_dependencies(portal_path)
+
+    whitelist = load_whitelist_cli(portal_path)
+
+    return check_dependencies(dependencies, whitelist)
+
+
+@main.command()
+@click.argument("portal_path")
+def delta_dependencies(portal_path):
+    new_dependencies = set(generate_dependencies(portal_path))
+
+    # TODO: get old_dependencies
+    old_dependencies = set()
+
+    dependencies = new_dependencies - old_dependencies
+
+    whitelist = load_whitelist_cli(portal_path)
+
+    return check_dependencies(dependencies, whitelist)
 
 
 if __name__ == "__main__":

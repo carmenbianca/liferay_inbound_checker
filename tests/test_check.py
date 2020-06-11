@@ -26,12 +26,12 @@ class DiscoveredMock:
 
 def test_score_check():
     check = ScoreCheck()
-    for i in range(83, 101):
+    for i in range(ScoreCheck.TARGET_NUMBER, 101):
         result = check.process(ScoreMock(i))
         assert result
         assert check.success
 
-    for i in range(0, 83):
+    for i in range(0, ScoreCheck.TARGET_NUMBER):
         result = check.process(ScoreMock(i))
         assert not result
         assert not check.success
@@ -81,7 +81,7 @@ def test_check_could_not_download(mocker):
 
 
 def test_check_simple(mocker, clearlydefined_dict):
-    clearlydefined_dict["scores"]["effective"] = 83
+    clearlydefined_dict["scores"]["effective"] = ScoreCheck.TARGET_NUMBER
     mocker.patch(
         "liferay_inbound_checker.check.definitions_from_clearlydefined",
         return_value=clearlydefined_dict,
