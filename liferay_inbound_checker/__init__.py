@@ -31,6 +31,11 @@ LICENSE_WHITELIST = [
     "CC0-1.0",
     "ISC",
     "MIT",
+    "Expat",
+    "MIT-0",
+    "MIT-CMU",
+    "MIT-feh",
+    "X11",
     # Not on the list, but should be
     "LGPL-2.1-or-later",
     "LGPL-3.0-or-later",
