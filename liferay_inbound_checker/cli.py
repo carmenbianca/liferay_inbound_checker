@@ -6,6 +6,7 @@
 
 """Console script for liferay_inbound_checker."""
 import sys
+from inspect import cleandoc
 from multiprocessing.pool import ThreadPool
 
 import click
@@ -21,7 +22,6 @@ from liferay_inbound_checker.dependencies import (
     dependencies_from_tree,
     generate_pom,
 )
-from inspect import cleandoc
 
 
 @click.command()

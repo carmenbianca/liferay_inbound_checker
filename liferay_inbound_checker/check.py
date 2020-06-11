@@ -12,8 +12,8 @@ from requests import RequestException
 from liferay_inbound_checker import LICENSE_WHITELIST
 from liferay_inbound_checker.clearlydefined import (
     ClearlyDefinedDefinitions,
-    definitions_from_clearlydefined,
     clearlydefined_url,
+    definitions_from_clearlydefined,
 )
 from liferay_inbound_checker.dependencies import Dependency
 
@@ -123,6 +123,7 @@ class RequestExceptionReason(Reason):
 
 class OnlyNoassertionReason(Reason):
     pass
+
 
 class NoDiscoveredLicensesReason(Reason):
     pass
