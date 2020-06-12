@@ -76,3 +76,15 @@ def dependencies_from_tree(root: Element) -> List[Dependency]:
             )
         )
     return result
+
+
+def get_current_revision(portal_directory: PathLike) -> str:
+    with cwd(portal_directory):
+        return (
+            subprocess.run(
+                ["git", "name-rev", "--name-only", "HEAD"],
+                stdout=subprocess.PIPE,
+            )
+            .stdout.decode("utf-8")
+            .strip()
+        )

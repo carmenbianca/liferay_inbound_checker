@@ -5,6 +5,7 @@
 # SPDX-License-Identifier: LGPL-2.1-or-later
 
 """Console script for liferay_inbound_checker."""
+import subprocess
 import sys
 from inspect import cleandoc
 from multiprocessing.pool import ThreadPool
@@ -12,6 +13,7 @@ from multiprocessing.pool import ThreadPool
 import click
 from requests import RequestException
 
+from liferay_inbound_checker import cwd
 from liferay_inbound_checker.check import check, is_whitelisted, load_whitelist
 from liferay_inbound_checker.clearlydefined import (
     ClearlyDefinedDefinitions,
@@ -21,6 +23,7 @@ from liferay_inbound_checker.dependencies import (
     convert_to_tree,
     dependencies_from_tree,
     generate_pom,
+    get_current_revision,
 )
 
 
@@ -112,7 +115,12 @@ def delta_dependencies(portal_path):
     new_dependencies = set(generate_dependencies(portal_path))
 
     # TODO: get old_dependencies
-    old_dependencies = set()
+    current_revision = get_current_revision(portal_path)
+    with cwd(portal_path):
+        subprocess.run(["git", "checkout", "master"])
+    old_dependencies = set(generate_dependencies(portal_path))
+    with cwd(portal_path):
+        subprocess.run(["git", "checkout", current_revision])
 
     dependencies = new_dependencies - old_dependencies
 
