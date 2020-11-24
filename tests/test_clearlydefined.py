@@ -94,6 +94,20 @@ def test_discovered_licenses(clearlydefined_definitions):
         "BSD-3-Clause",
     }
 
+def test_discovered_licenses_parse_error():
+    """Special case for mysql/mysql-connector-java."""
+    json_dict = {
+        "licensed": {
+            "declared": "GPL-2.0-only WITH (OTHER AND Universal-FOSS-exception-1.0)",
+        }
+    }
+    result = ClearlyDefinedDefinitions(json_dict)
+    assert result.discovered_licenses == {
+        "GPL-2.0-only",
+        "OTHER",
+        "Universal-FOSS-exception-1.0",
+    }
+
 
 def test_is_empty():
     definitions = ClearlyDefinedDefinitions(dict())

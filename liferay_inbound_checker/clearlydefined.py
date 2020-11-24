@@ -7,7 +7,7 @@ from contextlib import suppress
 from typing import Dict, Set
 
 import requests
-from license_expression import Licensing
+from license_expression import ExpressionError, Licensing
 from requests.compat import urljoin
 
 from .dependencies import Dependency
@@ -70,14 +70,26 @@ class ClearlyDefinedDefinitions:
 
     @property
     def discovered_licenses(self) -> Set[str]:
-        """
-        :raises ExpressionError: if expression could not be parsed.
-        """
         result = set()
         expressions = self.discovered_license_expressions
         for expression in expressions:
-            parsed = _LICENSING.parse(expression)
-            licenses = _LICENSING.license_keys(parsed)
+            try:
+                parsed = _LICENSING.parse(expression)
+                licenses = _LICENSING.license_keys(parsed)
+            except ExpressionError:
+                mapping = {
+                    "WITH": " ",
+                    "with": " ",
+                    "AND": " ",
+                    "and": " ",
+                    "OR": " ",
+                    "or": " ",
+                    "(": " ",
+                    ")": " ",
+                }
+                for key, val in mapping.items():
+                    expression = expression.replace(key, val)
+                licenses = expression.split()
             for lic in licenses:
                 result.add(lic)
         return result
