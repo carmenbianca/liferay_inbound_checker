@@ -94,6 +94,7 @@ def test_discovered_licenses(clearlydefined_definitions):
         "BSD-3-Clause",
     }
 
+
 def test_discovered_licenses_parse_error():
     """Special case for mysql/mysql-connector-java."""
     json_dict = {
