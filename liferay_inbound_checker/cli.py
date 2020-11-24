@@ -73,7 +73,8 @@ def check_dependencies(dependencies, whitelist):
             for reason in result.reasons:
                 click.echo(reason)
         else:
-            click.echo("TODO advice for good results goes here.")
+            # TODO: Reword this.
+            click.echo("Succeeded! If necessary, manually verify this result.")
 
     failures = sum(1 for result in calculated_results if not result.success)
     successes = len(calculated_results) - failures
